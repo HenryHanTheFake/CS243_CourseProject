@@ -1,0 +1,7 @@
+Plurality
+Destructive
+4
+200
+1
+-1
+-1
