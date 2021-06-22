@@ -1,5 +1,6 @@
 import manip as m
 import time
+import random
 
 def main():
 	
@@ -92,10 +93,19 @@ def main():
 	print("--------------------------- Manipulation ----------------------------")
 	print("Manipulation Starts.")
 	print("--------------------")
-	time.sleep(1)
+	ds = []
+	'''
+	while 1:
+		i = random.randint(1,200)
+		if i not in ds:
+			ds.append(i)
+	print("Line 101.")
+	'''
+	for i in range(1,201):
+		ds.append(201-i)
 	pollingAgencyInstance.setNum(len(candidateList),len(voterList))
 	pollingAgencyInstance.setTieBreaking([3,2,1,4])
-	pollingAgencyInstance.setDeviationSequence([4,3,2,1,5,6,7,8,9,10])
+	pollingAgencyInstance.setDeviationSequence(ds)
 	pollingAgencyInstance.setInitialPollStrategic(candidateList,voterList)	
 	pollingAgencyInstance.setInitialPollTruthful(candidateList,voterList)
 	pollingAgencyInstance.manipulate(candidateList,voterList)

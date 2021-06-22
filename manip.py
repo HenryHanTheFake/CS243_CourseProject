@@ -1,4 +1,5 @@
 import time
+import random
 
 class pollingAgency:
 	def __init__ (self,votingRule,manipulation,targetCandidate,distance):
@@ -29,10 +30,9 @@ class pollingAgency:
 			index = voterList[i].ballotTruthful
 			PollTruthful[index-1] += 1
 			
-		if self.difference <= 4000:
-			for i in range(0,len(candidateList)):
-				PollTruthfulCopy = PollTruthful.copy()
-				self.possiblePollTruthful.append(PollTruthfulCopy)	
+		for i in range(0,len(candidateList)*50):
+			PollTruthfulCopy = PollTruthful.copy()
+			self.possiblePollTruthful.append(PollTruthfulCopy)	
 			
 		print("Initial truthful poll is :",self.possiblePollTruthful[0])
 	
@@ -62,17 +62,46 @@ class pollingAgency:
 		print("Difference is :",difference)
 		print("Initial strategic poll is :",PollStrategic)
 		
+		# This IF needs modification.
 		if self.difference <= 10:
 			for i in range(0,len(candidateList)):
 				PollStrategicCopy = PollStrategic.copy()
 				PollStrategicCopy[i] += difference
 				self.possiblePollStrategic.append(PollStrategicCopy)
-		elif self.difference > 10:
-			for i in range(0,len(candidateList)):
-				PollStrategicCopy = PollStrategic.copy()
-				PollStrategicCopy[i] += difference
-				self.possiblePollStrategic.append(PollStrategicCopy)
 		
+		elif self.difference > 10:
+			seed = 0
+			while(len(self.possiblePollStrategic) != 400):
+				PollStrategicCopy = PollStrategic.copy()
+				random.seed(seed)
+				incre0 = random.randint(0,difference)
+				PollStrategicCopy[0] += incre0
+				if incre0 == difference:
+					seed += 1
+					continue
+				else:
+					incre1 = random.randint(0,difference-incre0)
+					PollStrategicCopy[1] += incre1
+					if incre1 == difference-incre0:
+						seed += 1
+						continue
+					else:
+						incre2 = random.randint(0,difference-incre0-incre1)
+						PollStrategicCopy[2] += incre2
+						if incre2 == difference-incre0-incre1:
+							seed += 1
+							continue
+						else:
+							incre3 = difference-incre0-incre1-incre2
+							PollStrategicCopy[3] += incre3
+				if PollStrategicCopy not in self.possiblePollStrategic:	
+					#print("Line 94:",PollStrategicCopy)
+					self.possiblePollStrategic.append(PollStrategicCopy)
+				#else:
+					#print("Line 97: Repeated.")
+				seed += 1
+			#print("Line 104: Length of possiblePollStrategic is ",len(self.possiblePollStrategic))
+			
 	def tryPollStrategic(self,increment,decrement,index):
 		tempPollStrategic = self.possiblePollStrategic[index].copy()
 		tempPollStrategic[increment-1] += 1
@@ -93,9 +122,9 @@ class pollingAgency:
 		
 	def realWinnerDetermination(self,candidateList):
 		successCount = 0
-		guessCount = 2
+		guessCount = 1
 		if self.votingRule == "Plurality":
-			for k in range(0,len(candidateList)):
+			for k in range(0,len(candidateList)*50):
 				index = 0
 				max = self.possiblePollTruthful[k][0]
 				for i in range(1,len(self.possiblePollTruthful[k])):
@@ -123,7 +152,7 @@ class pollingAgency:
 			print("Manipulation success probability :",successCount * guessCount/(len(candidateList)*50))
 			
 		elif self.votingRule == "Veto":
-			for k in range(0,len(candidateList)):
+			for k in range(0,len(candidateList)*50):
 				index = 0
 				min = self.possiblePollTruthful[k][0]
 				for i in range(1,len(self.possiblePollTruthful[k])):
@@ -146,7 +175,7 @@ class pollingAgency:
 				elif (candidateList[index].candidateID != self.targetCandidate) and self.manipulation == "Destructive":
 					successCount += 1
 					print("Winner ID :",candidateList[index].candidateID," Manipulation succeeds.")
-				time.sleep(1)
+				#time.sleep(1)
 			print("...")
 			print("Manipulation success count : ", successCount * guessCount)
 			print("Manipulation success probability :",successCount * guessCount/(len(candidateList)*50))
@@ -184,14 +213,12 @@ class pollingAgency:
 			return candidateList[index].candidateID
 			
 	def manipulate(self,candidateList,voterList):
-		for k in range (0,len(candidateList)):
+		for k in range (0,len(candidateList)*50):
 			print("Manipulation round :",k)
-			time.sleep(1)
 			for i in range(0,len(self.deviationSequence)):
 				index = self.deviationSequence[i]-1
 				voterList[index].deviateBallot(self,candidateList,k)
-		print("...")
-		time.sleep(10)
+			#time.sleep(0.5)
 		print("   ")
 		print("Total round :",len(candidateList)*50)
 		print("----------------------")
@@ -251,4 +278,3 @@ class voter:
 						pass
 					else:
 						pollingAgency.updatePoll(increment,decrement,index)
-
