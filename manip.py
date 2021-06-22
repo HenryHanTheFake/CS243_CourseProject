@@ -12,7 +12,7 @@ class pollingAgency:
 		self.possiblePollStrategic = []
 		self.candidatesNum = 0
 		self.votersNum = 0
-		self.difference = 0
+		self.diffguessCountce = 0
 		#print("Polling Agency Created!")
 		
 	def setTieBreaking(self,tieBreakingList):
@@ -29,7 +29,7 @@ class pollingAgency:
 			index = voterList[i].ballotTruthful
 			PollTruthful[index-1] += 1
 			
-		if self.difference <= 4000:
+		if self.diffguessCountce <= 4000:
 			for i in range(0,len(candidateList)):
 				PollTruthfulCopy = PollTruthful.copy()
 				self.possiblePollTruthful.append(PollTruthfulCopy)	
@@ -56,25 +56,25 @@ class pollingAgency:
 					if PollStrategic[k] < temp[k]:
 						PollStrategic[k] = temp[k]
 						
-		difference = self.votersNum - sum(PollStrategic)
-		self.difference = difference
+		diffguessCountce = self.votersNum - sum(PollStrategic)
+		self.diffguessCountce = diffguessCountce
 		
-		print("Difference is :",difference)
+		print("DiffguessCountce is :",diffguessCountce)
 		print("Initial strategic poll is :",PollStrategic)
 		
-		if self.difference <= 10:
+		if self.diffguessCountce <= 10:
 			for i in range(0,len(candidateList)):
 				PollStrategicCopy = PollStrategic.copy()
-				PollStrategicCopy[i] += difference
+				PollStrategicCopy[i] += diffguessCountce
 				self.possiblePollStrategic.append(PollStrategicCopy)
-		elif self.difference > 10:
+		elif self.diffguessCountce > 10:
 			for i in range(0,len(candidateList)):
 				PollStrategicCopy = PollStrategic.copy()
-				PollStrategicCopy[i] += difference
+				PollStrategicCopy[i] += diffguessCountce
 				self.possiblePollStrategic.append(PollStrategicCopy)
 		
 		#
-		#self.PollStrategic[3] += difference
+		#self.PollStrategic[3] += diffguessCountce
 		#
 		
 	def tryPollStrategic(self,increment,decrement,index):
@@ -97,6 +97,7 @@ class pollingAgency:
 		
 	def realWinnerDetermination(self,candidateList):
 		successCount = 0
+		guessCount = 2
 		if self.votingRule == "Plurality":
 			for k in range(0,len(candidateList)):
 				index = 0
@@ -122,9 +123,8 @@ class pollingAgency:
 					successCount += 1
 					print("Winner ID :",candidateList[index].candidateID," Manipulation succeeds.")
 			print("...")
-			eren = 2
-			print("Manipulation success count : ", successCount * eren)
-			print("Manipulation success probability :",successCount * eren/(len(candidateList)*50))
+			print("Manipulation success count : ", successCount * guessCount)
+			print("Manipulation success probability :",successCount * guessCount/(len(candidateList)*50))
 			
 		elif self.votingRule == "Veto":
 			for k in range(0,len(candidateList)):
@@ -152,9 +152,9 @@ class pollingAgency:
 					print("Winner ID :",candidateList[index].candidateID," Manipulation succeeds.")
 				time.sleep(1)
 			print("...")
-			eren = 2
-			print("Manipulation success count : ", successCount * eren)
-			print("Manipulation success probability :",successCount * eren/(len(candidateList)*50))
+			guessCount = 2
+			print("Manipulation success count : ", successCount * guessCount)
+			print("Manipulation success probability :",successCount * guessCount/(len(candidateList)*50))
 			
 			
 	def fakeWinnerDetermination(self,candidateList,PollStrategic):
@@ -212,14 +212,14 @@ class voter:
 	def __init__(self,ID,distance):
 		self.voterID = ID
 		self.restrictedDistance = distance
-		self.preference = []
+		self.prefguessCountce = []
 		self.network = []
 		self.ballotTruthful = 0
 		self.ballotStrategic = 0
 		#print("Voter Created! ID:",self.voterID)
 
-	def setPreference(self,preferenceList):
-		self.preference = preferenceList
+	def setPrefguessCountce(self,prefguessCountceList):
+		self.prefguessCountce = prefguessCountceList
 		
 	def setConnection(self,neighbour):
 		self.network.append(neighbour)
@@ -227,33 +227,33 @@ class voter:
 	def setTruthfulBallot(self,votingRule):
 		self.votingRule = votingRule
 		if votingRule == "Plurality":
-			self.ballotTruthful = self.preference[0]
+			self.ballotTruthful = self.prefguessCountce[0]
 		elif votingRule == "Veto":
-			self.ballotTruthful = self.preference[-1]
+			self.ballotTruthful = self.prefguessCountce[-1]
 			
 	def deviateBallot(self,pollingAgency,candidateList,index):
 		if self.votingRule == "Plurality":
-			if self.preference[0] == pollingAgency.fakeWinnerDetermination(candidateList,pollingAgency.possiblePollStrategic[index]):
+			if self.prefguessCountce[0] == pollingAgency.fakeWinnerDetermination(candidateList,pollingAgency.possiblePollStrategic[index]):
 				pass
 			else:
 				increment = pollingAgency.fakeWinnerDetermination(candidateList,pollingAgency.possiblePollStrategic[index])
-				decrement = self.preference[0]
+				decrement = self.prefguessCountce[0]
 				for i in range(0,len(pollingAgency.possiblePollStrategic)):
 					tempPollStrategic = pollingAgency.tryPollStrategic(increment,decrement,i)
-					if self.preference[-1] == pollingAgency.fakeWinnerDetermination(candidateList,tempPollStrategic):
+					if self.prefguessCountce[-1] == pollingAgency.fakeWinnerDetermination(candidateList,tempPollStrategic):
 						pass
 					else:
 						pollingAgency.updatePoll(increment,decrement,index)
 				
 		elif self.votingRule == "Veto":
-			if self.preference[0] == pollingAgency.fakeWinnerDetermination(candidateList,pollingAgency.possiblePollStrategic[index]):
+			if self.prefguessCountce[0] == pollingAgency.fakeWinnerDetermination(candidateList,pollingAgency.possiblePollStrategic[index]):
 				pass
 			else:
 				increment = pollingAgency.fakeWinnerDetermination(candidateList,pollingAgency.possiblePollStrategic[index])
-				decrement = self.preference[-1]
+				decrement = self.prefguessCountce[-1]
 				for i in range(0,len(pollingAgency.possiblePollStrategic)):
 					tempPollStrategic = pollingAgency.tryPollStrategic(increment,decrement,i)
-					if self.preference[-1] == pollingAgency.fakeWinnerDetermination(candidateList,tempPollStrategic):
+					if self.prefguessCountce[-1] == pollingAgency.fakeWinnerDetermination(candidateList,tempPollStrategic):
 						pass
 					else:
 						pollingAgency.updatePoll(increment,decrement,index)
